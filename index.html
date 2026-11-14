@@ -442,6 +442,26 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
 .wk.today span{color:#4f8a5d;font-weight:700}
 .wk em{position:absolute;top:2px;font-style:normal;color:#f2b84b;font-size:.85rem}
 .sb-hint{margin:16px 0 0;font-size:.8rem;color:var(--muted);line-height:1.6}
+.sb-sum p.sb-split{font-size:.8rem;margin-top:2px}
+.sb-sum p.sb-split:empty{display:none}
+.sticker em{position:absolute;top:-4px;right:-6px;font-style:normal;font-size:.6rem;font-weight:800;color:#8a5a12;background:#ffe3a3;border:1px solid #f1c96a;border-radius:99px;padding:0 5px;line-height:1.6;transform:rotate(calc(var(--r,0deg) * -1))}
+.sticker.again svg{filter:drop-shadow(0 0 0 #f1c96a) drop-shadow(0 2px 2px rgba(60,90,70,.25))}
+.sb-body h3 small{font-weight:500;font-size:.78rem;margin-left:4px}
+.sb-rounds{display:grid;gap:7px}
+.rvrow{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;font-size:.85rem}
+.rvrow .rl{font-weight:650}
+.rvrow .rb{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.rvrow .rb i{display:block;height:100%;border-radius:99px;background:#f5d58c}
+.rvrow.first .rb i{background:#a8dcae}
+.rvrow .rn{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.8rem}
+.rvrow .rn b{color:var(--text)}
+.rvctl{display:inline-flex;border:1px solid #f1d58f;border-radius:8px;overflow:hidden;background:#fff8e6}
+.rvctl button{border:0;background:transparent;padding:7px 12px;font-weight:650;font-size:.9rem;color:#8a5a12}
+.rvctl button:hover{background:#ffefc4}
+.rvctl button+button{border-left:1px solid #f1d58f;padding:7px 10px}
+:root[data-theme="dark"] .rvctl{background:#2e2818;border-color:#5a4a26}
+:root[data-theme="dark"] .rvctl button{color:#e8c77d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rvctl{background:#2e2818;border-color:#5a4a26}:root:not([data-theme="light"]) .rvctl button{color:#e8c77d}}
 @media (max-width:860px){
   .sb-fab{right:14px;bottom:14px;width:52px;height:52px}
   .sb{width:100%;max-width:none}
@@ -668,12 +688,15 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
       <div class="sb-num"><b id="sbCount">0</b><span>/ <span id="sbGoalTxt">10</span>문항</span></div>
       <div class="sb-bar"><i id="sbFill"></i></div>
       <p id="sbMsg"></p>
+      <p class="sb-split" id="sbSplit"></p>
     </div>
     <div class="sb-board" id="sbBoard"></div>
     <div class="sb-row"><span class="muted">하루 목표</span><div class="frow" id="sbGoals"></div></div>
+    <h3>회독 현황 <small class="muted">전체 문항 중 몇 번째까지 봤는지</small></h3>
+    <div class="sb-rounds" id="sbRounds"></div>
     <h3>최근 7일</h3>
     <div class="sb-week" id="sbWeek"></div>
-    <p class="sb-hint">문항에서 <b>풀었어요</b>를 누르면 스티커가 붙고, 다시 누르면 떼져요. 스티커를 누르면 그 문항으로 가요.</p>
+    <p class="sb-hint">문항에서 <b>풀었어요</b>를 누르면 1회독 스티커가 붙고, 다시 볼 때마다 <b>2회독 체크</b>·<b>3회독 체크</b>를 누르면 리본 달린 회독 스티커가 붙어요. 스티커를 누르면 그 문항으로 가요.</p>
   </div>
 </aside>
 
@@ -840,7 +863,8 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
   /* ---------- 목록 ---------- */
   function badges(id){
     var s=status[id]||{};
-    return (hasMemo(id)?'<i class="m">메모</i>':'')+(s.r?'<i class="r">다시</i>':'')+(s.d?'<i class="d">✓ 풂</i>':'');
+    var rn=rounds(id);
+    return (hasMemo(id)?'<i class="m">메모</i>':'')+(s.r?'<i class="r">다시</i>':'')+(rn>1?'<i class="d">✓ '+rn+'회독</i>':s.d?'<i class="d">✓ 풂</i>':'');
   }
   function cardHTML(q){
     return '<button type="button" class="card area-'+q.area+'" data-id="'+q.id+'"'+(current===q.id?' aria-current="true"':'')+'>'+
@@ -870,9 +894,26 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
   var sbPop=null;
   function todayStr(dt){var x=dt||new Date();return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");}
   var FROG='<svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#557a5c" stroke-width="2.2"><circle cx="20" cy="21" r="10" fill="#a8dcae"/><circle cx="44" cy="21" r="10" fill="#a8dcae"/><ellipse cx="32" cy="39" rx="26" ry="19" fill="#a8dcae"/></g><circle cx="20" cy="21" r="5.5" fill="#fff"/><circle cx="44" cy="21" r="5.5" fill="#fff"/><circle cx="21" cy="22" r="3" fill="#33403a"/><circle cx="45" cy="22" r="3" fill="#33403a"/><ellipse cx="15" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><ellipse cx="49" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><path d="M24 41q8 7 16 0" fill="none" stroke="#557a5c" stroke-width="2.2" stroke-linecap="round"/></svg>';
-  function doneOn(day){return Q.filter(function(q){var s=status[q.id]||{};return s.d&&s.dt===day;}).sort(function(a,b){return (status[a.id].ts||0)-(status[b.id].ts||0);});}
+  function rounds(id){var s=status[id]||{};return s.d?1+(s.rv||[]).length:0;}
+  function doneOn(day){ // 그날 붙은 스티커: 처음 푼 것(1회독) + 회독 체크
+    var out=[];
+    Q.forEach(function(q){var s=status[q.id]||{}; if(!s.d) return;
+      if(s.dt===day) out.push({q:q,ts:s.ts||0,round:1});
+      (s.rv||[]).forEach(function(r,i){ if(r.dt===day) out.push({q:q,ts:r.ts||0,round:i+2}); });
+    });
+    return out.sort(function(a,b){return a.ts-b.ts;});
+  }
   function renderStickers(){
     var goal=store.get("sbGoal",10), day=todayStr(), list=doneOn(day), n=list.length;
+    var nNew=list.filter(function(e){return e.round===1;}).length;
+    $("#sbSplit").textContent=n?"새로 푼 문항 "+nNew+" · 회독 "+(n-nNew):"";
+    // 회독 현황
+    var rs=Q.map(function(q){return rounds(q.id);}), mx=Math.max.apply(null,rs.concat([0])), rh="";
+    for(var r=1;r<=Math.min(Math.max(2,mx+1),6);r++){
+      var c=rs.filter(function(x){return x>=r;}).length;
+      rh+='<div class="rvrow'+(r===1?' first':'')+'"><span class="rl">'+r+'회독</span><div class="rb"><i style="width:'+(c/Q.length*100)+'%"></i></div><span class="rn"><b>'+c+'</b> / '+Q.length+'</span></div>';
+    }
+    $("#sbRounds").innerHTML=rh;
     $("#sbBadge").textContent=n; $("#sbBadge").hidden=!n;
     var d=new Date(); $("#sbDate").textContent=(d.getMonth()+1)+"월 "+d.getDate()+"일 "+"일월화수목금토"[d.getDay()]+"요일";
     $("#sbCount").textContent=n; $("#sbGoalTxt").textContent=goal;
@@ -881,9 +922,9 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
     $("#sbGoals").innerHTML=[5,10,15,20].map(function(g){return '<button type="button" class="chip" data-goal="'+g+'" aria-pressed="'+(g===goal)+'">'+g+'</button>';}).join("");
     var slots=Math.max(goal,Math.ceil(n/5)*5), h="";
     for(var i=0;i<slots;i++){
-      var q=list[i];
+      var e=list[i], q=e&&e.q;
       if(q){ var rot=((q.id.length*37+i*53)%21)-10;
-        h+='<button type="button" class="sticker area-'+q.area+(q.id===sbPop?' pop':'')+'" data-q="'+q.id+'" title="'+q.year+' 전공'+q.paper+' '+q.no+'번 · '+esc(q.topic||"")+'" style="--r:'+rot+'deg">'+FROG+'<small>'+String(q.year).slice(2)+q.paper+'-'+q.no+'</small></button>';
+        h+='<button type="button" class="sticker area-'+q.area+(e.round>1?' again':'')+(q.id+"#"+e.round===sbPop?' pop':'')+'" data-q="'+q.id+'" title="'+q.year+' 전공'+q.paper+' '+q.no+'번 · '+(e.round>1?e.round+'회독 · ':'')+esc(q.topic||"")+'" style="--r:'+rot+'deg">'+FROG+(e.round>1?'<em>'+e.round+'회</em>':'')+'<small>'+String(q.year).slice(2)+q.paper+'-'+q.no+'</small></button>';
       } else h+='<span class="pad'+(i>=goal?' extra':'')+'"><span>'+(i+1)+'</span></span>';
     }
     $("#sbBoard").innerHTML=h; sbPop=null;
@@ -1014,6 +1055,7 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
         '<div class="actions">'+
           '<button type="button" class="btn" data-act="flow" title="시험지 줄바꿈 그대로 보기 / 문장 이어 보기"></button>'+
           '<button type="button" class="btn" data-act="done"></button>'+
+          '<span class="rvctl" data-part="rv"><button type="button" data-act="rv+" title="이 문항을 한 번 더 봤으면 눌러 주세요"></button><button type="button" data-act="rv-" aria-label="마지막 회독 체크 취소" title="마지막 회독 체크 취소">−</button></span>'+
           '<button type="button" class="btn" data-act="rev"></button>'+
           '<button type="button" class="btn" data-act="pg"></button>'+
           '<a class="btn" href="'+encodeURI(q.pdf)+'" target="_blank" rel="noopener">PDF 열기</a>'+
@@ -1055,6 +1097,9 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
     bd.className="btn"+(s.d?" on-d":""); bd.textContent=s.d?"✓ 풀었어요":"풀었어요";
     br.className="btn"+(s.r?" on-r":""); br.textContent=s.r?"★ 다시 볼래요":"다시 볼래요";
     var b2=$('[data-act="done2"]',d); if(b2){ b2.className=s.d?"on-d":""; b2.textContent=s.d?"✓ 풀었어요":"풀었어요"; }
+    var rn=rounds(current), rv=$('[data-part="rv"]',d);
+    if(rv){ rv.hidden=!s.d; $('[data-act="rv+"]',rv).textContent=(rn+1)+"회독 체크"+(rn>1?" · 지금 "+rn+"회독":"");
+      $('[data-act="rv-"]',rv).hidden=rn<2; }
     var bf=$('[data-act="flow"]',d); if(bf) bf.textContent=store.get("flow",true)?"↵ 시험지 줄바꿈으로":"⇥ 문장 이어 보기";
   }
   function setPages(show){
@@ -1088,9 +1133,17 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
       $('[data-part="qtext"]',$("#detail")).innerHTML=renderQText(byId[id]); paintButtons(); return;
     }
     if(a==="prev"||a==="next"){step(a==="next"?1:-1);return;}
+    if(a==="rv+"||a==="rv-"){
+      var sv=status[id]||{}; if(!sv.d) return; sv.rv=sv.rv||[];
+      if(a==="rv+"){ sv.rv.push({dt:todayStr(),ts:Date.now()}); sbPop=id+"#"+(sv.rv.length+1); }
+      else { sv.rv.pop(); if(!sv.rv.length) delete sv.rv; }
+      status[id]=sv; store.set("status",status); paintButtons(); refreshCard(id); return;
+    }
     if(a==="done"||a==="rev"){
-      var s=status[id]||{}; var k=a==="done"?"d":"r"; s[k]=!s[k];
-      if(k==="d"){ if(s.d){ s.dt=todayStr(); s.ts=Date.now(); sbPop=id; } else { delete s.dt; delete s.ts; } }
+      var s=status[id]||{}; var k=a==="done"?"d":"r";
+      if(k==="d"&&s.d&&(s.rv||[]).length&&!confirm("'풀었어요'를 취소하면 회독 기록 "+s.rv.length+"개도 함께 지워져요. 취소할까요?")) return;
+      s[k]=!s[k];
+      if(k==="d"){ if(s.d){ s.dt=todayStr(); s.ts=Date.now(); sbPop=id+"#1"; } else { delete s.dt; delete s.ts; delete s.rv; } }
       status[id]=s; store.set("status",status);
       paintButtons(); refreshCard(id); return;
     }
