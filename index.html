@@ -384,6 +384,13 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .qb{background:var(--pa,var(--cs))}
 .qb.done{outline-color:#8fcfa9}
 
+.subtiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0 4px}
+.subtile{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:10px;padding:8px 12px 12px;background:var(--surface)}
+.subtile span{font-size:.85rem;font-weight:650;color:var(--c)}
+.subtile b{display:block;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.subtile b small{font-size:.76rem;font-weight:500;color:var(--muted);margin-left:3px}
+.subtile i{position:absolute;left:0;bottom:0;height:4px;background:var(--pb);border-radius:0 4px 4px 0}
+
 /* 출제 분포 마스코트 */
 .mascot{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,#fdf0f5,#eef3fd 55%,#eef8f2);border:1px solid var(--line)}
 :root[data-theme="dark"] .mascot{background:linear-gradient(120deg,#2a2230,#222838 55%,#1f2b26)}
@@ -582,6 +589,8 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     <div class="panel mapwrap">
       <h2>영역별 출제 분포</h2>
       <p class="muted" style="margin:0">회차별로 어느 영역에서 몇 번 문항이 나왔는지 보여 줘요. 번호를 누르면 그 문항으로 가요. 초록 테두리는 '풀었어요' 문항이에요.</p>
+      <nav class="areabar" id="mapAreaBar" aria-label="분포를 볼 영역" style="margin:14px 0 0"></nav>
+      <div id="mapSubs"></div>
       <div id="mapTable"></div>
     </div>
   </section>
@@ -1125,10 +1134,21 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     var sessions=uniq(Q.map(function(q){return q.year+q.paper;})).sort(function(a,b){return b.localeCompare(a);});
     var cols=sessions.length+2;
     var html='<table class="map"><thead><tr><th>영역</th>'+sessions.map(function(s){return '<th>'+s.slice(0,4)+' 전공'+s.slice(4)+'</th>';}).join("")+'<th style="text-align:right">합계</th></tr></thead><tbody>';
-    [AREA_KEYS].forEach(function(keys){
+    var mapArea=store.get("mapArea","all"); if(mapArea!=="all"&&!AREAS[mapArea]) mapArea="all";
+    $("#mapAreaBar").innerHTML='<button type="button" data-marea="all" aria-pressed="'+(mapArea==="all")+'"><b>전체</b><small>'+Q.length+'문항</small></button>'+
+      AREA_KEYS.map(function(a){return '<button type="button" class="area-'+a+'" data-marea="'+a+'" aria-pressed="'+(mapArea===a)+'"><b>'+AREAS[a].name+'</b><small>'+Q.filter(function(q){return q.area===a;}).length+'문항</small></button>';}).join("");
+    var subOrder=function(a){return function(x,y){var i=AREAS[a].subs.indexOf(x),j=AREAS[a].subs.indexOf(y); if(i<0)i=99; if(j<0)j=99; return i-j||x.localeCompare(y);};};
+    if(mapArea==="all"){ $("#mapSubs").innerHTML=""; }
+    else{
+      var aq=Q.filter(function(q){return q.area===mapArea;});
+      var ss=uniq(aq.map(function(q){return q.sub;})).sort(function(x,y){return aq.filter(function(q){return q.sub===y;}).length-aq.filter(function(q){return q.sub===x;}).length;});
+      $("#mapSubs").innerHTML='<div class="subtiles area-'+mapArea+'">'+ss.map(function(s){var n=aq.filter(function(q){return q.sub===s;}).length;
+        return '<div class="subtile"><span>'+esc(s)+'</span><b>'+n+'<small>문항 · '+(Math.round(n/aq.length*1000)/10)+'%</small></b><i style="width:'+(n/aq.length*100)+'%"></i></div>';}).join("")+'</div>';
+    }
+    [AREA_KEYS.filter(function(a){return mapArea==="all"||a===mapArea;})].forEach(function(keys){
       keys.forEach(function(a){
         var subs=uniq(Q.filter(function(q){return q.area===a;}).map(function(q){return q.sub;}));
-        subs.sort(function(x,y){return AREAS[a].subs.indexOf(x)-AREAS[a].subs.indexOf(y);});
+        subs.sort(subOrder(a));
         html+='<tr class="grp area-'+a+'"><th colspan="'+cols+'">'+AREAS[a].name+' · '+Q.filter(function(q){return q.area===a;}).length+'문항</th></tr>';
         subs.forEach(function(sub){
           var n=0;
@@ -1176,6 +1196,7 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     $("#mapYear").innerHTML=t;
   }
   $("#mapTable").addEventListener("click",function(e){var b=e.target.closest("[data-q]"); if(b) jumpTo(b.dataset.q);});
+  $("#mapAreaBar").addEventListener("click",function(e){var b=e.target.closest("[data-marea]"); if(!b) return; store.set("mapArea",b.dataset.marea); renderMap();});
 
   // 다른 보기에서 문항으로 이동: 필터 때문에 안 보이면 필터를 풀어 줌
   function jumpTo(id){
