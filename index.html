@@ -754,8 +754,6 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
           '<span class="fsctl" style="margin-left:auto" title="문제 글씨 크기"><button type="button" data-act="fs-" aria-label="글씨 작게">가−</button><span data-part="fs"></span><button type="button" data-act="fs+" aria-label="글씨 크게">가+</button></span>'+
         '</div>'+
         '<div class="pages" data-part="pages"></div>'+
-        ((worksByQ[q.id]||[]).length?'<div class="section"><details class="mini area-'+q.area+'"'+(store.get("wkOpen",true)?' open':'')+' data-part="wk"><summary>작품 정리 '+worksByQ[q.id].length+'편</summary><div class="wlist" style="padding-bottom:10px">'+worksByQ[q.id].map(function(w){return workHTML(w,false);}).join("")+'</div></details></div>':'')+
-        (gl.length?'<div class="section"><details class="mini area-'+q.area+'"'+(store.get("glOpen",true)?' open':'')+' data-part="gl"><summary>이 문항의 어려운 단어 '+gl.length+'개</summary>'+glossHTML(gl)+'</details></div>':'')+
         '<div class="section"><h3>내 답안 <small>쓰면 자동 저장</small><span class="saved" data-saved="ans">저장됨 ✓</span></h3>'+
           '<textarea class="box" data-field="ans" placeholder="먼저 직접 써 본 뒤 예시 답안과 비교해 보세요."></textarea></div>'+
         '<div class="section"><h3>예시 답안 <small>비공식</small></h3>'+
@@ -767,6 +765,8 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
             '<div class="actions" data-part="ansTools" style="margin:8px 0 0"><button type="button" class="btn" data-act="ansEditOpen">✎ 예시 답안 수정</button>'+
               '<button type="button" class="btn" data-act="ansReset" data-part="ansResetBtn">원래 답안으로 되돌리기</button></div>'+
           '</div></div>'+
+        ((worksByQ[q.id]||[]).length?'<div class="section"><details class="mini area-'+q.area+'"'+(store.get("wkOpen",true)?' open':'')+' data-part="wk"><summary>작품 정리 '+worksByQ[q.id].length+'편</summary><div class="wlist" style="padding-bottom:10px">'+worksByQ[q.id].map(function(w){return workHTML(w,false);}).join("")+'</div></details></div>':'')+
+        (gl.length?'<div class="section"><details class="mini area-'+q.area+'"'+(store.get("glOpen",true)?' open':'')+' data-part="gl"><summary>이 문항의 어려운 단어 '+gl.length+'개</summary>'+glossHTML(gl)+'</details></div>':'')+
         '<div class="section"><h3>메모 <small>헷갈린 점·외울 것·관련 개념 — 자동 저장, 메모장 탭에 모여요</small><span class="saved" data-saved="memo">저장됨 ✓</span></h3>'+
           '<textarea class="box memo" data-field="memo" placeholder="예) ㄱ 약화 환경: ㄹ, j, 서술격 조사 뒤 — 꼭 외우기"></textarea></div>'+
       '</div>'+
