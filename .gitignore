@@ -1,0 +1,5 @@
+﻿# 임시 파일
+*.tmp
+Thumbs.db
+desktop.ini
+__pycache__/
