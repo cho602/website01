@@ -317,6 +317,7 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .qblk.verse p{margin:0}
 .qblk p.src{text-align:right;color:var(--muted);font-size:.9em;margin-top:.4em}
 .qblk p.qnote{color:var(--muted);font-size:.88em}
+.qblk u.ul{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:.28em;text-decoration-skip-ink:none;text-decoration-color:color-mix(in srgb,var(--text) 75%,transparent)}
 .qblk .mk{display:inline-block;font-size:.78rem;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:0 6px;margin:4px 0}
 
 /* 영역 버튼 파스텔 색 */
@@ -854,7 +855,7 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
     if(F.status==="memo"&&!hasMemo(q.id)) return false;
     var t=F.q.trim().toLowerCase();
     if(t){
-      var hay=(q.topic+" "+q.kw.join(" ")+" "+q.sub+" "+AREAS[q.area].name+" "+q.text+" "+(glossByQ[q.id]||[]).map(function(g){return g.t;}).join(" ")).toLowerCase();
+      var hay=(q.topic+" "+q.kw.join(" ")+" "+q.sub+" "+AREAS[q.area].name+" "+noU(q.text)+" "+(glossByQ[q.id]||[]).map(function(g){return g.t;}).join(" ")).toLowerCase();
       if(!t.split(/\s+/).every(function(w){return hay.indexOf(w)>=0;})) return false;
     }
     return true;
@@ -943,28 +944,35 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("sb-open"))sbOpen(false);});
 
   /* ---------- 문항 상세 ---------- */
-  function fmtText(t){return esc(t).replace(/(㉠|㉡|㉢|㉣|㉤|ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|\[A\]|\[B\]|\[C\])/g,'<span class="mark">$1</span>');}
+  // 시험지 밑줄: build.py가 … 로 표시해 둠 → <u>
+  function noU(t){return String(t).replace(/[]/g,"");}
+  function fmtText(t){
+    var s=esc(t), open=false;
+    s=s.replace(/[]/g,function(c){ if(c===""){ if(open) return ""; open=true; return '<u class="ul">'; } if(!open) return ""; open=false; return '</u>'; });
+    if(open) s+='</u>';
+    return s.replace(/(㉠|㉡|㉢|㉣|㉤|㉥|㉦|㉧|ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|ⓕ|\[A\]|\[B\]|\[C\])/g,'<span class="mark">$1</span>');
+  }
   /* ---------- 문제 글: 영역(발문·지문·보기·작성 방법) 나누기 + 줄 이어 보기 ---------- */
   function qBlocks(text){
     var blocks=[], cur={type:"stem",label:"",title:"",lines:[]}, stemDone=false;
     blocks.push(cur);
     function start(type,label,title){cur={type:type,label:label||"",title:title||"",lines:[]};blocks.push(cur);}
     text.split("\n").forEach(function(raw){
-      var t=raw.trim(), m; if(!t) return;
-      if(!stemDone){ cur.lines.push(t); if(/\[\d{1,2}점\]/.test(t)){stemDone=true; start("body");} return; }
-      if((m=t.match(/^\(([가-바])\)\s*(.*)$/))){ start("psg","("+m[1]+")",m[2]); return; }
-      if(/^<\s*작\s*성\s*방\s*법\s*>$/.test(t)){ start("task","작성 방법"); return; }
-      if((m=t.match(/^<\s*(보\s*기|자\s*료)\s*(\d*)\s*>$/))){ start(/^보/.test(m[1])?"bogi":"data", m[1].replace(/\s/g,"")+(m[2]?" "+m[2]:"")); return; }
-      if((m=t.match(/^<\s*([^<>]{2,20})\s*>$/))){ start("data", m[1]); return; }
+      var t=raw.trim(), p=noU(t), m; if(!p.trim()) return;
+      if(!stemDone){ cur.lines.push(t); if(/\[\d{1,2}점\]/.test(p)){stemDone=true; start("body");} return; }
+      if((m=p.match(/^\(([가-바])\)\s*(.*)$/))){ start("psg","("+m[1]+")",t.replace(/^[]*\([가-바]\)[]?\s*/,"")); return; }
+      if(/^<\s*작\s*성\s*방\s*법\s*>$/.test(p)){ start("task","작성 방법"); return; }
+      if((m=p.match(/^<\s*(보\s*기|자\s*료)\s*(\d*)\s*>$/))){ start(/^보/.test(m[1])?"bogi":"data", m[1].replace(/\s/g,"")+(m[2]?" "+m[2]:"")); return; }
+      if((m=p.match(/^<\s*([^<>]{2,20})\s*>$/))){ start("data", m[1]); return; }
       cur.lines.push(t);
     });
     return blocks.filter(function(b){return b.lines.length||b.title;});
   }
   var RE_SRC=/^[-–]\s.*([-–]|」|｣|󰡕)\s*$/, RE_NOTE=/^(…|\.\.\.|\*\s?\S|\[(앞|앞의|이전|중략|전략|뒷)[^\]]*\])/, RE_MARK=/^\[[A-E]\]$/,
       RE_ITEM=/^(◦|∙|•|※|▣|①|②|③|④|⑤|⑥|\(\d+\)|\d+\.\s|[ㄱ-ㅎ]\.\s|활동\s*\d|질문\s*\d|문제\s*\d|-\s|[가-힣A-Za-z0-9○ ()·]{1,18}\s?:\s)/;
-  function lineKind(t){ return RE_MARK.test(t)?"mark":RE_SRC.test(t)?"src":RE_NOTE.test(t)?"note":RE_ITEM.test(t)?"item":"text"; }
+  function lineKind(t){ t=noU(t); return RE_MARK.test(t)?"mark":RE_SRC.test(t)?"src":RE_NOTE.test(t)?"note":RE_ITEM.test(t)?"item":"text"; }
   function blockParas(lines, flow){
-    var plain=lines.filter(function(t){return lineKind(t)==="text"||lineKind(t)==="item";});
+    var plain=lines.filter(function(t){return lineKind(t)==="text"||lineKind(t)==="item";}).map(noU);
     var maxLen=plain.reduce(function(a,t){return Math.max(a,t.length);},0);
     var full=plain.filter(function(t){return t.length>=maxLen*0.85;}).length;
     var verse = plain.length>=3 && full/plain.length<0.45;   // 시처럼 짧은 행 위주면 줄을 잇지 않음
@@ -972,10 +980,10 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
     lines.forEach(function(t){
       var k=lineKind(t);
       var join = flow && !verse && prev && (k==="text") && prev.kind!=="src" && prev.kind!=="note" && prev.kind!=="mark" &&
-                 maxLen>=18 && prev.last.length>=Math.max(18,maxLen*0.8);
+                 maxLen>=18 && noU(prev.last).length>=Math.max(18,maxLen*0.8);
       if(join){
         // 시험지에서 단어 중간에 줄이 바뀐 경우(다음 줄이 조사·어미로 시작)에는 띄우지 않고 붙임
-        var glue = /[가-힣]$/.test(prev.last) && /^(은|는|을|를|에|와|였|었|았|게|니|며|이다|이며|이고|이라|하였|했|함|합니|됩니|입니|습니)/.test(t);
+        var glue = /[가-힣]$/.test(noU(prev.last)) && /^(은|는|을|를|에|와|였|었|았|게|니|며|이다|이며|이고|이라|하였|했|함|합니|됩니|입니|습니)/.test(noU(t));
         prev.text += (glue?"":" ")+t; prev.last=t;
       }
       else { prev={kind:k,text:t,last:t}; paras.push(prev); }
@@ -987,7 +995,7 @@ body.sb-open .sb-fab{opacity:0;pointer-events:none}
     return qBlocks(q.text).map(function(b){
       var r=blockParas(b.lines, b.type==="stem"?true:flow);
       var inner=r.paras.map(function(p){
-        if(p.kind==="mark") return '<span class="mk">'+esc(p.text)+'</span>';
+        if(p.kind==="mark") return '<span class="mk">'+esc(noU(p.text))+'</span>';
         return '<p'+(p.kind==="src"?' class="src"':p.kind==="note"?' class="qnote"':'')+'>'+fmtText(p.text)+'</p>';
       }).join("");
       var head = b.label||b.title ? '<div class="qhead">'+(b.label?'<span class="lab">'+esc(b.label)+'</span>':'')+(b.title?'<b class="ttl">'+fmtText(b.title)+'</b>':'')+'</div>' : '';

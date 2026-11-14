@@ -46,17 +46,54 @@ def clean_line(s: str) -> str:
     return s.rstrip()
 
 
+U0, U1 = "", ""  # 밑줄 시작/끝 표시 (화면에서 <u>로 바뀜)
+
+
+def underline_segments(page):
+    """글자 아래 가로선(밑줄). 상자 테두리(세로선과 맞닿은 선)와 쪽 머리·꼬리선은 뺀다."""
+    vs = [o for o in page.lines if abs(o["x0"] - o["x1"]) < 1.5]
+    segs = []
+    for o in page.lines:
+        if abs(o["top"] - o["bottom"]) >= 1.5 or not 3 <= o["x1"] - o["x0"] <= 400:
+            continue
+        y = o["top"]
+        edge = any((abs(v["x0"] - o["x0"]) < 2 or abs(v["x0"] - o["x1"]) < 2) and v["top"] - 2 <= y <= v["bottom"] + 2 for v in vs)
+        if not edge:
+            segs.append(o)
+    return segs
+
+
+def mark_underlines(page):
+    segs = underline_segments(page)
+    n = 0
+    for c in page.chars:
+        if not c["text"].strip():
+            continue
+        cx = (c["x0"] + c["x1"]) / 2
+        if any(o["x0"] - 1 <= cx <= o["x1"] + 1 and -1.5 <= o["top"] - c["bottom"] <= 3 for o in segs):
+            c["text"] = U0 + c["text"] + U1
+            n += 1
+    return n
+
+
+def tidy_marks(ln):
+    ln = re.sub(U1 + r"(\s*)" + U0, r"\1", ln)  # 이어지는 밑줄 글자는 한 덩어리로
+    return ln
+
+
 def extract(pdf_path: pathlib.Path):
     """Return list of (page_no, line) in reading order (left column, then right)."""
     lines = []
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages, 1):
             w, h = page.width, page.height
+            mark_underlines(page)
             for box in ((0, 0, w / 2, h), (w / 2, 0, w, h)):
                 t = page.crop(box).extract_text(x_tolerance=1.5) or ""
                 for ln in t.splitlines():
-                    ln = clean_line(ln)
-                    if not ln.strip() or any(r.search(ln.strip()) for r in JUNK_RE):
+                    ln = tidy_marks(clean_line(ln))
+                    plain = ln.replace(U0, "").replace(U1, "").strip()
+                    if not plain or any(r.search(plain) for r in JUNK_RE):
                         continue
                     lines.append((i, ln))
     return lines
