@@ -634,13 +634,19 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
           '<textarea class="box" data-field="ans" placeholder="먼저 직접 써 본 뒤 예시 답안과 비교해 보세요."></textarea></div>'+
         '<div class="section"><h3>예시 답안 <small>비공식</small></h3>'+
           '<button type="button" class="btn primary" data-act="ans"></button>'+
-          '<div class="answer" data-part="ans" style="margin-top:10px"><span class="warn">이 노트에서 작성한 참고용 답안이에요. 평가원 채점 기준과 다를 수 있어요.</span>'+esc(q.ans||"아직 작성하지 않았어요.")+'</div></div>'+
+          '<div data-part="ans" style="margin-top:10px">'+
+            '<div class="answer"><span class="warn" data-part="ansNote"></span><span data-part="ansView"></span></div>'+
+            '<div data-part="ansEdit" hidden><textarea class="box" data-ansedit style="min-height:200px"></textarea>'+
+              '<div class="actions" style="margin:8px 0 0"><button type="button" class="btn primary" data-act="ansSave">저장</button><button type="button" class="btn" data-act="ansCancel">취소</button></div></div>'+
+            '<div class="actions" data-part="ansTools" style="margin:8px 0 0"><button type="button" class="btn" data-act="ansEditOpen">✎ 예시 답안 수정</button>'+
+              '<button type="button" class="btn" data-act="ansReset" data-part="ansResetBtn">원래 답안으로 되돌리기</button></div>'+
+          '</div></div>'+
         '<div class="section"><h3>메모 <small>헷갈린 점·외울 것·관련 개념 — 자동 저장, 메모장 탭에 모여요</small><span class="saved" data-saved="memo">저장됨 ✓</span></h3>'+
           '<textarea class="box memo" data-field="memo" placeholder="예) ㄱ 약화 환경: ㄹ, j, 서술격 조사 뒤 — 꼭 외우기"></textarea></div>'+
       '</div>';
     $('[data-field="ans"]',d).value=store.get("ans:"+q.id,"");
     $('[data-field="memo"]',d).value=store.get("memo:"+q.id,"");
-    paintButtons(); setPages(showPg); setAns(showAns); paintFs();
+    paintButtons(); setPages(showPg); setAns(showAns); paintFs(); paintAns();
     $(".dbody",d).scrollTop=0; // 새 문항을 열 때만 맨 위로
   }
   // 문제 글씨 크기 (90%~160%, 기본 110%)
@@ -664,6 +670,14 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     box.hidden=!show;
     $('[data-act="pg"]',$("#detail")).textContent=show?"원문 이미지 접기":"원문 이미지 보기";
   }
+  // 예시 답안: 사용자가 고친 답안(myans:id)이 있으면 그것을 보여 줌
+  function paintAns(){
+    var q=byId[current], d=$("#detail"), mine=store.get("myans:"+q.id,null);
+    var edited = mine!==null;
+    $('[data-part="ansView"]',d).textContent = edited ? mine : (q.ans||"아직 작성된 예시 답안이 없어요. '예시 답안 수정'을 눌러 직접 써 보세요.");
+    $('[data-part="ansNote"]',d).textContent = edited ? "✎ 내가 수정한 답안이에요." : "이 노트에서 작성한 참고용 답안이에요. 평가원 채점 기준과 다를 수 있어요.";
+    $('[data-part="ansResetBtn"]',d).hidden = !edited || !q.ans;
+  }
   function setAns(show){
     $('[data-part="ans"]',$("#detail")).hidden=!show;
     $('[data-act="ans"]',$("#detail")).textContent=show?"예시 답안 숨기기":"예시 답안 보기";
@@ -681,6 +695,14 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     if(a==="fs-"||a==="fs+"){fs=Math.max(90,Math.min(160,fs+(a==="fs+"?10:-10)));store.set("qfs",fs);paintFs();return;}
     if(a==="pg"){var box=$('[data-part="pages"]',$("#detail")); var show=box.hidden; store.set("showPg:"+id,show); setPages(show); return;}
     if(a==="ans"){var an=$('[data-part="ans"]',$("#detail")); var sh=an.hidden; store.set("showAns:"+id,sh); setAns(sh); return;}
+    var dd=$("#detail");
+    if(a==="ansEditOpen"){
+      var cur=store.get("myans:"+id,null); $('[data-ansedit]',dd).value = cur!==null ? cur : (byId[id].ans||"");
+      $('[data-part="ansEdit"]',dd).hidden=false; $('[data-part="ansTools"]',dd).hidden=true; $('[data-ansedit]',dd).focus(); return;
+    }
+    if(a==="ansSave"){ store.set("myans:"+id,$('[data-ansedit]',dd).value); }
+    if(a==="ansSave"||a==="ansCancel"){ $('[data-part="ansEdit"]',dd).hidden=true; $('[data-part="ansTools"]',dd).hidden=false; paintAns(); return; }
+    if(a==="ansReset"){ if(confirm("내가 수정한 답안을 지우고 원래 예시 답안으로 되돌릴까요?")){ store.del("myans:"+id); paintAns(); } return; }
   });
   $("#detail").addEventListener("toggle",function(e){if(e.target.matches('[data-part="gl"]')) store.set("glOpen",e.target.open);},true);
   var saveField = debounce(function(ta,id){
