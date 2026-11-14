@@ -412,6 +412,7 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 <script src="data/meta.js"></script>
 <script src="data/meta2.js"></script>
 <script src="data/glossary.js"></script>
+<script src="data/glossary2.js"></script>
 <script src="data/works.js"></script>
 <script src="data/works_extra.js"></script>
 <script src="data/works2.js"></script>
@@ -454,7 +455,9 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
   });
   Q.sort(function(a,b){return b.year-a.year || a.paper.localeCompare(b.paper) || a.no-b.no;});
   var byId={}; Q.forEach(function(q){byId[q.id]=q;});
-  var G = (window.GLOSSARY||[]);
+  var G = (window.GLOSSARY||[]).map(function(g){
+    var add=(window.GLOSSARY_ADDQ||{})[g.t]; return add ? Object.assign({},g,{q:(g.q||[]).concat(add)}) : g;
+  }).concat(window.GLOSSARY2||[]);
   var W = (window.WORKS||[]).map(function(w){
     var x = Object.assign({}, w, (window.WORKS_EXTRA||{})[w.t]||{});
     var add = (window.WORKS_ADDQ||{})[w.t]; if(add) x.q = (x.q||[]).concat(add);
