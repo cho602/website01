@@ -391,6 +391,63 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .subtile b small{font-size:.76rem;font-weight:500;color:var(--muted);margin-left:3px}
 .subtile i{position:absolute;left:0;bottom:0;height:4px;background:var(--pb);border-radius:0 4px 4px 0}
 
+/* 개구리 스티커판 (오른쪽 서랍) */
+.sb-fab{position:fixed;right:20px;bottom:20px;z-index:50;width:58px;height:58px;border-radius:50%;border:1px solid var(--line);background:#eef8ef;box-shadow:0 6px 18px -8px rgba(60,90,70,.45);display:grid;place-items:center;padding:0;transition:transform .15s}
+.sb-fab:hover{transform:translateY(-2px)}
+.sb-fab svg{width:40px;height:40px}
+.sb-badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:99px;background:#f39ab3;color:#fff;font-size:.75rem;font-weight:700;display:grid;place-items:center;padding:0 6px;border:2px solid var(--surface)}
+.sb{position:fixed;top:0;right:0;bottom:0;width:360px;max-width:92vw;z-index:80;background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease;visibility:hidden}
+body.sb-open .sb{transform:none;visibility:visible;box-shadow:-12px 0 40px -20px rgba(0,0,0,.3)}
+.sb-scrim{display:none}
+body.sb-open .sb-scrim{display:block;position:fixed;inset:0;z-index:75;background:rgba(30,30,40,.18)}
+body.sb-open .sb-fab{opacity:0;pointer-events:none}
+.sb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px 12px;border-bottom:1px solid var(--line);background:linear-gradient(120deg,#effaf1,#f4f8ee)}
+:root[data-theme="dark"] .sb-head{background:#1f2a23}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sb-head{background:#1f2a23}}
+.sb-head h2{margin:0;font-size:1.1rem}
+.sb-head .muted{font-size:.85rem}
+.sb-head .icon-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.sb-body{padding:16px 18px 24px;overflow:auto;flex:1}
+.sb-sum{margin-bottom:14px}
+.sb-num{display:flex;align-items:baseline;gap:6px}
+.sb-num b{font-size:2.2rem;line-height:1;color:#4f8a5d;font-variant-numeric:tabular-nums}
+:root[data-theme="dark"] .sb-num b{color:#8fd19e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sb-num b{color:#8fd19e}}
+.sb-num span{color:var(--muted);font-weight:600}
+.sb-bar{height:8px;border-radius:99px;background:var(--surface-2);margin:10px 0 8px;overflow:hidden}
+.sb-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#b8e3bf,#8fd19e);transition:width .3s}
+.sb-sum p{margin:0;font-size:.9rem;color:var(--muted)}
+.sb-board{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:14px;border-radius:14px;background:#f2f8f1;border:1px solid #e1eee0}
+:root[data-theme="dark"] .sb-board{background:#1c241f;border-color:#2a362e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sb-board{background:#1c241f;border-color:#2a362e}}
+.pad{aspect-ratio:1;border-radius:50%;border:2px dashed #c4dfc6;display:grid;place-items:center;color:#a5c4a8;font-size:.78rem;font-weight:600}
+.pad.extra{opacity:.5}
+:root[data-theme="dark"] .pad{border-color:#38503d;color:#5c7a62}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pad{border-color:#38503d;color:#5c7a62}}
+.sticker{aspect-ratio:1;border:0;padding:0;background:transparent;position:relative;display:grid;place-items:center;transform:rotate(var(--r,0deg));transition:transform .15s}
+.sticker:hover{transform:rotate(0) scale(1.08)}
+.sticker svg{width:100%;height:100%;filter:drop-shadow(0 2px 2px rgba(60,90,70,.25))}
+.sticker small{position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);font-size:.6rem;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:0 4px;line-height:1.5;white-space:nowrap;color:var(--c)}
+.sticker.pop{animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.2) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(var(--r,0deg));opacity:1}}
+@media (prefers-reduced-motion:reduce){.sticker.pop{animation:none}.sb{transition:none}}
+.sb-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:.88rem}
+.sb-row .chip{padding:2px 12px}
+.sb-body h3{font-size:.92rem;margin:18px 0 8px}
+.sb-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.wk{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;color:var(--muted)}
+.wk .wb{width:100%;height:56px;border-radius:8px;background:var(--surface-2);display:flex;align-items:flex-end;overflow:hidden}
+.wk .wb i{display:block;width:100%;background:#b8e3bf;border-radius:6px 6px 0 0}
+.wk b{color:var(--text);font-size:.85rem;font-variant-numeric:tabular-nums}
+.wk.today span{color:#4f8a5d;font-weight:700}
+.wk em{position:absolute;top:2px;font-style:normal;color:#f2b84b;font-size:.85rem}
+.sb-hint{margin:16px 0 0;font-size:.8rem;color:var(--muted);line-height:1.6}
+@media (max-width:860px){
+  .sb-fab{right:14px;bottom:14px;width:52px;height:52px}
+  .sb{width:100%;max-width:none}
+  body.show-detail .sb-fab{display:none}
+}
+
 /* 출제 분포 마스코트 */
 .mascot{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,#fdf0f5,#eef3fd 55%,#eef8f2);border:1px solid var(--line)}
 :root[data-theme="dark"] .mascot{background:linear-gradient(120deg,#2a2230,#222838 55%,#1f2b26)}
@@ -596,6 +653,30 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
   </section>
 </main>
 
+<button type="button" class="sb-fab" id="sbFab" aria-controls="sb" aria-expanded="false" aria-label="오늘의 스티커판 열기" title="오늘의 스티커판">
+  <svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#557a5c" stroke-width="2.4"><circle cx="20" cy="21" r="10" fill="#a8dcae"/><circle cx="44" cy="21" r="10" fill="#a8dcae"/><ellipse cx="32" cy="39" rx="26" ry="19" fill="#a8dcae"/></g><circle cx="20" cy="21" r="5.5" fill="#fff"/><circle cx="44" cy="21" r="5.5" fill="#fff"/><circle cx="21" cy="22" r="3" fill="#33403a"/><circle cx="45" cy="22" r="3" fill="#33403a"/><ellipse cx="15" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><ellipse cx="49" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><path d="M24 41q8 7 16 0" fill="none" stroke="#557a5c" stroke-width="2.4" stroke-linecap="round"/></svg>
+  <span class="sb-badge" id="sbBadge" hidden>0</span>
+</button>
+<div class="sb-scrim" id="sbScrim"></div>
+<aside class="sb" id="sb" aria-label="오늘의 개구리 스티커판" aria-hidden="true">
+  <div class="sb-head">
+    <div><h2>개구리 스티커판</h2><span class="muted" id="sbDate"></span></div>
+    <button type="button" class="icon-btn" id="sbClose" aria-label="스티커판 닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="sb-body">
+    <div class="sb-sum">
+      <div class="sb-num"><b id="sbCount">0</b><span>/ <span id="sbGoalTxt">10</span>문항</span></div>
+      <div class="sb-bar"><i id="sbFill"></i></div>
+      <p id="sbMsg"></p>
+    </div>
+    <div class="sb-board" id="sbBoard"></div>
+    <div class="sb-row"><span class="muted">하루 목표</span><div class="frow" id="sbGoals"></div></div>
+    <h3>최근 7일</h3>
+    <div class="sb-week" id="sbWeek"></div>
+    <p class="sb-hint">문항에서 <b>풀었어요</b>를 누르면 스티커가 붙고, 다시 누르면 떼져요. 스티커를 누르면 그 문항으로 가요.</p>
+  </div>
+</aside>
+
 <footer>
   기출 문제 출처: 한국교육과정평가원, 2014~2026학년도 중등학교교사 임용후보자 선정경쟁시험 제1차 국어 전공A·B. 개인 학습용입니다.
   예시 답안·단어 풀이·작품 정리는 이 노트에서 직접 작성한 것으로 공식 자료가 아니에요. 풀이 기록·답안·메모는 이 브라우저에 저장돼요.
@@ -782,7 +863,43 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     var d=0,r=0,m=0; Q.forEach(function(q){var s=status[q.id]||{}; if(s.d)d++; if(s.r)r++; if(hasMemo(q.id))m++;});
     $("#pDone").textContent=d; $("#pTotal").textContent=Q.length; $("#pReview").textContent=r; $("#pMemo").textContent=m;
     $("#pBar").style.width=(Q.length?d/Q.length*100:0)+"%";
+    renderStickers();
   }
+
+  /* ---------- 개구리 스티커판 ---------- */
+  var sbPop=null;
+  function todayStr(dt){var x=dt||new Date();return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");}
+  var FROG='<svg viewBox="0 0 64 64" aria-hidden="true"><g stroke="#557a5c" stroke-width="2.2"><circle cx="20" cy="21" r="10" fill="#a8dcae"/><circle cx="44" cy="21" r="10" fill="#a8dcae"/><ellipse cx="32" cy="39" rx="26" ry="19" fill="#a8dcae"/></g><circle cx="20" cy="21" r="5.5" fill="#fff"/><circle cx="44" cy="21" r="5.5" fill="#fff"/><circle cx="21" cy="22" r="3" fill="#33403a"/><circle cx="45" cy="22" r="3" fill="#33403a"/><ellipse cx="15" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><ellipse cx="49" cy="40" rx="4.5" ry="3" fill="#f6b3c4" opacity=".8"/><path d="M24 41q8 7 16 0" fill="none" stroke="#557a5c" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  function doneOn(day){return Q.filter(function(q){var s=status[q.id]||{};return s.d&&s.dt===day;}).sort(function(a,b){return (status[a.id].ts||0)-(status[b.id].ts||0);});}
+  function renderStickers(){
+    var goal=store.get("sbGoal",10), day=todayStr(), list=doneOn(day), n=list.length;
+    $("#sbBadge").textContent=n; $("#sbBadge").hidden=!n;
+    var d=new Date(); $("#sbDate").textContent=(d.getMonth()+1)+"월 "+d.getDate()+"일 "+"일월화수목금토"[d.getDay()]+"요일";
+    $("#sbCount").textContent=n; $("#sbGoalTxt").textContent=goal;
+    $("#sbMsg").textContent = n>=goal ? "목표 달성! 오늘도 정말 수고했어요." : n===0 ? "'풀었어요'를 누르면 연잎에 개구리가 앉아요." : "목표까지 "+(goal-n)+"문항 남았어요. 개굴!";
+    $("#sbFill").style.width=Math.min(100,n/goal*100)+"%";
+    $("#sbGoals").innerHTML=[5,10,15,20].map(function(g){return '<button type="button" class="chip" data-goal="'+g+'" aria-pressed="'+(g===goal)+'">'+g+'</button>';}).join("");
+    var slots=Math.max(goal,Math.ceil(n/5)*5), h="";
+    for(var i=0;i<slots;i++){
+      var q=list[i];
+      if(q){ var rot=((q.id.length*37+i*53)%21)-10;
+        h+='<button type="button" class="sticker area-'+q.area+(q.id===sbPop?' pop':'')+'" data-q="'+q.id+'" title="'+q.year+' 전공'+q.paper+' '+q.no+'번 · '+esc(q.topic||"")+'" style="--r:'+rot+'deg">'+FROG+'<small>'+String(q.year).slice(2)+q.paper+'-'+q.no+'</small></button>';
+      } else h+='<span class="pad'+(i>=goal?' extra':'')+'"><span>'+(i+1)+'</span></span>';
+    }
+    $("#sbBoard").innerHTML=h; sbPop=null;
+    // 최근 7일
+    var w="";
+    for(var k=6;k>=0;k--){var x=new Date();x.setDate(x.getDate()-k);var c=doneOn(todayStr(x)).length;
+      w+='<div class="wk'+(k===0?' today':'')+'"><div class="wb"><i style="height:'+Math.min(100,c/goal*100)+'%"></i></div><b>'+c+'</b><span>'+(k===0?"오늘":"일월화수목금토"[x.getDay()])+'</span>'+(c>=goal?'<em title="목표 달성">★</em>':'')+'</div>';}
+    $("#sbWeek").innerHTML=w;
+  }
+  function sbOpen(o){document.body.classList.toggle("sb-open",o);$("#sbFab").setAttribute("aria-expanded",o);$("#sb").setAttribute("aria-hidden",!o);store.set("sbOpen",o);}
+  $("#sbFab").addEventListener("click",function(){sbOpen(!document.body.classList.contains("sb-open"));});
+  $("#sbClose").addEventListener("click",function(){sbOpen(false);});
+  $("#sbScrim").addEventListener("click",function(){sbOpen(false);});
+  $("#sbGoals").addEventListener("click",function(e){var b=e.target.closest("[data-goal]");if(!b)return;store.set("sbGoal",+b.dataset.goal);renderStickers();});
+  $("#sbBoard").addEventListener("click",function(e){var b=e.target.closest("[data-q]");if(!b)return;if(isNarrow())sbOpen(false);jumpTo(b.dataset.q);});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("sb-open"))sbOpen(false);});
 
   /* ---------- 문항 상세 ---------- */
   function fmtText(t){return esc(t).replace(/(㉠|㉡|㉢|㉣|㉤|ⓐ|ⓑ|ⓒ|ⓓ|ⓔ|\[A\]|\[B\]|\[C\])/g,'<span class="mark">$1</span>');}
@@ -972,7 +1089,9 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     }
     if(a==="prev"||a==="next"){step(a==="next"?1:-1);return;}
     if(a==="done"||a==="rev"){
-      var s=status[id]||{}; var k=a==="done"?"d":"r"; s[k]=!s[k]; status[id]=s; store.set("status",status);
+      var s=status[id]||{}; var k=a==="done"?"d":"r"; s[k]=!s[k];
+      if(k==="d"){ if(s.d){ s.dt=todayStr(); s.ts=Date.now(); sbPop=id; } else { delete s.dt; delete s.ts; } }
+      status[id]=s; store.set("status",status);
       paintButtons(); refreshCard(id); return;
     }
     if(a==="fs-"||a==="fs+"){fs=Math.max(90,Math.min(160,fs+(a==="fs+"?10:-10)));store.set("qfs",fs);paintFs();return;}
