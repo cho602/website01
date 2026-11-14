@@ -319,6 +319,35 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .qblk p.qnote{color:var(--muted);font-size:.88em}
 .qblk .mk{display:inline-block;font-size:.78rem;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:0 6px;margin:4px 0}
 
+/* 출제 분포 통계 */
+.stack{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--surface-2);min-width:120px}
+.stack.big{height:14px;margin:14px 0 12px}
+.stack span{display:block;height:100%;background:var(--c)}
+.stack span+span{border-left:2px solid var(--surface)}
+.stiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.stile{border:1px solid var(--line);border-top:3px solid var(--c,var(--text));border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.stile .k{font-size:.85rem;font-weight:650;color:var(--c,var(--muted))}
+.stile b{font-size:1.6rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.stile b small{font-size:.8rem;font-weight:500;color:var(--muted);margin-left:2px}
+.stile .p{font-size:.88rem;font-variant-numeric:tabular-nums}
+.ystat{min-width:560px}
+.ystat td.num,.ystat th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ystat td.num small{display:inline-block;min-width:44px;color:var(--muted);font-size:.75rem;margin-left:4px}
+.ystat td.zero{color:var(--muted)}
+.ystat th .dot{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:5px}
+.ystat td.barc,.ystat th.barc{width:30%;vertical-align:middle}
+.ystat tfoot th,.ystat tfoot td{border-bottom:0;font-weight:650}
+.ystat tfoot tr:first-child th,.ystat tfoot tr:first-child td{border-top:2px solid var(--line)}
+@media (max-width:860px){
+  .stiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stile.all{grid-column:1/-1}
+  .ystat td.num small{display:block;margin:0;min-width:0}
+  table.map.ystat{min-width:0;font-size:.82rem}
+  .ystat th,.ystat td{padding:6px 4px}
+  .ystat .barc{display:none}
+  .ystat th .dot{display:none}
+}
+
 /* 휴대폰 아래쪽 고정 버튼 */
 .dfoot{display:none}
 @media (max-width:860px){
@@ -439,6 +468,16 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 
   <!-- 출제 분포 -->
   <section id="view-map" hidden>
+    <div class="panel">
+      <h2>영역별 누적 문항 수</h2>
+      <p class="muted" style="margin:0">지금까지 모은 기출 전체에서 영역마다 몇 문항이 나왔는지예요. (괄호 안은 배점 합계)</p>
+      <div id="mapTotal"></div>
+    </div>
+    <div class="panel mapwrap">
+      <h2>연도별 영역 문항 수</h2>
+      <p class="muted" style="margin:0">전공 A·B를 합친 수예요. %는 그해 전체 문항 중 그 영역이 차지한 비율이에요.</p>
+      <div id="mapYear"></div>
+    </div>
     <div class="panel mapwrap">
       <h2>영역별 출제 분포</h2>
       <p class="muted" style="margin:0">회차별로 어느 영역에서 몇 번 문항이 나왔는지 보여 줘요. 번호를 누르면 그 문항으로 가요. 초록 테두리는 '풀었어요' 문항이에요.</p>
@@ -1001,6 +1040,35 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
       });
     });
     $("#mapTable").innerHTML=html+'</tbody></table>';
+    renderStats();
+  }
+  function renderStats(){
+    var total=Q.length;
+    var pts=function(qs){return qs.reduce(function(s,q){return s+(+q.points||0);},0);};
+    var pct=function(n,d){return d?Math.round(n/d*1000)/10:0;};
+    var inA=function(qs,a){return qs.filter(function(q){return q.area===a;});};
+    var stack=function(qs,big){return '<div class="stack'+(big?' big':'')+'">'+AREA_KEYS.map(function(a){var n=inA(qs,a).length;return n?'<span class="area-'+a+'" style="width:'+pct(n,qs.length)+'%" title="'+AREAS[a].name+' '+n+'문항"></span>':'';}).join("")+'</div>';};
+    // 영역별 누적
+    var h=stack(Q,true)+'<div class="stiles">';
+    AREA_KEYS.forEach(function(a){
+      var qs=inA(Q,a);
+      h+='<div class="stile area-'+a+'"><span class="k">'+AREAS[a].name+'</span><b>'+qs.length+'<small>문항</small></b><span class="p">'+pct(qs.length,total)+'% <small class="muted">('+pts(qs)+'점)</small></span></div>';
+    });
+    h+='<div class="stile all"><span class="k">전체</span><b>'+total+'<small>문항</small></b><span class="p muted">'+pts(Q)+'점</span></div></div>';
+    $("#mapTotal").innerHTML=h;
+    // 연도별
+    var years=uniq(Q.map(function(q){return q.year;})).sort(function(a,b){return b-a;});
+    var t='<table class="map ystat"><thead><tr><th>연도</th>'+AREA_KEYS.map(function(a){return '<th class="num area-'+a+'"><span class="dot"></span>'+AREAS[a].name+'</th>';}).join("")+'<th class="num">합계</th><th class="barc">비율</th></tr></thead><tbody>';
+    years.forEach(function(y){
+      var yq=Q.filter(function(q){return q.year===y;});
+      t+='<tr><th>'+y+'</th>'+AREA_KEYS.map(function(a){
+        var n=inA(yq,a).length;
+        return '<td class="num'+(n?'':' zero')+'">'+n+'<small>'+pct(n,yq.length)+'%</small></td>';
+      }).join("")+'<td class="num"><b>'+yq.length+'</b></td><td class="barc">'+stack(yq)+'</td></tr>';
+    });
+    t+='</tbody><tfoot><tr><th>합계</th>'+AREA_KEYS.map(function(a){var n=inA(Q,a).length;return '<td class="num">'+n+'<small>'+pct(n,total)+'%</small></td>';}).join("")+'<td class="num"><b>'+total+'</b></td><td class="barc">'+stack(Q)+'</td></tr>'+
+       '<tr><th>연평균</th>'+AREA_KEYS.map(function(a){return '<td class="num">'+(Math.round(inA(Q,a).length/years.length*10)/10)+'</td>';}).join("")+'<td class="num">'+(Math.round(total/years.length*10)/10)+'</td><td class="barc"></td></tr></tfoot></table>';
+    $("#mapYear").innerHTML=t;
   }
   $("#mapTable").addEventListener("click",function(e){var b=e.target.closest("[data-q]"); if(b) jumpTo(b.dataset.q);});
 
