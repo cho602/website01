@@ -404,7 +404,7 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 </main>
 
 <footer>
-  기출 문제 출처: 한국교육과정평가원, 2020~2026학년도 중등학교교사 임용후보자 선정경쟁시험 제1차 국어 전공A·B. 개인 학습용입니다.
+  기출 문제 출처: 한국교육과정평가원, 2014~2026학년도 중등학교교사 임용후보자 선정경쟁시험 제1차 국어 전공A·B. 개인 학습용입니다.
   예시 답안·단어 풀이·작품 정리는 이 노트에서 직접 작성한 것으로 공식 자료가 아니에요. 풀이 기록·답안·메모는 이 브라우저에 저장돼요.
 </footer>
 
@@ -414,6 +414,7 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 <script src="data/glossary.js"></script>
 <script src="data/works.js"></script>
 <script src="data/works_extra.js"></script>
+<script src="data/works2.js"></script>
 <script src="data/meta3.js"></script>
 <script>
 (function(){
@@ -454,7 +455,11 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
   Q.sort(function(a,b){return b.year-a.year || a.paper.localeCompare(b.paper) || a.no-b.no;});
   var byId={}; Q.forEach(function(q){byId[q.id]=q;});
   var G = (window.GLOSSARY||[]);
-  var W = (window.WORKS||[]).map(function(w){return Object.assign({}, w, (window.WORKS_EXTRA||{})[w.t]||{});});
+  var W = (window.WORKS||[]).map(function(w){
+    var x = Object.assign({}, w, (window.WORKS_EXTRA||{})[w.t]||{});
+    var add = (window.WORKS_ADDQ||{})[w.t]; if(add) x.q = (x.q||[]).concat(add);
+    return x;
+  }).concat(window.WORKS2||[]);
   var worksByQ={}; W.forEach(function(w){(w.q||[]).forEach(function(id){(worksByQ[id]=worksByQ[id]||[]).push(w);});});
   function workHTML(w,withQ){
     return '<div class="witem area-'+w.a+'"><div class="wh"><b>「'+esc(w.t)+'」</b><span class="muted">'+esc(w.w)+'</span><span class="pill">'+esc(w.g)+'</span></div>'+
