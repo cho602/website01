@@ -319,6 +319,43 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .qblk p.qnote{color:var(--muted);font-size:.88em}
 .qblk .mk{display:inline-block;font-size:.78rem;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:0 6px;margin:4px 0}
 
+/* 영역 버튼 파스텔 색 */
+:root{
+  --all-pa:#e7e9f6; --all-pa2:#d6daf0;
+  --edu-pa:#e1ebfc; --edu-pa2:#c9dbf8;
+  --gmod-pa:#fce8da; --gmod-pa2:#f7d3ba;
+  --mod-pa:#fbe3ee; --mod-pa2:#f5cbde;
+  --cls-pa:#dcf1e7; --cls-pa2:#c2e6d4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --all-pa:#262a3a; --all-pa2:#323850;
+    --edu-pa:#222e44; --edu-pa2:#2d3f62;
+    --gmod-pa:#352a22; --gmod-pa2:#4d382b;
+    --mod-pa:#352631; --mod-pa2:#4d3445;
+    --cls-pa:#1f3329; --cls-pa2:#2a4a3b;
+  }
+}
+:root[data-theme="dark"]{
+  --all-pa:#262a3a; --all-pa2:#323850;
+  --edu-pa:#222e44; --edu-pa2:#2d3f62;
+  --gmod-pa:#352a22; --gmod-pa2:#4d382b;
+  --mod-pa:#352631; --mod-pa2:#4d3445;
+  --cls-pa:#1f3329; --cls-pa2:#2a4a3b;
+}
+.area-edu{--pa:var(--edu-pa);--pa2:var(--edu-pa2)}
+.area-gram{--pa:var(--gmod-pa);--pa2:var(--gmod-pa2)}
+.area-mod{--pa:var(--mod-pa);--pa2:var(--mod-pa2)}
+.area-cls{--pa:var(--cls-pa);--pa2:var(--cls-pa2)}
+.areabar{gap:6px;padding:6px}
+.areabar button{background:var(--pa,var(--all-pa));transition:background .15s,box-shadow .15s}
+.areabar button:hover{background:var(--pa2,var(--all-pa2))}
+.areabar button b{color:var(--c,var(--text))}
+.areabar button[aria-pressed="true"]{background:var(--pa2,var(--all-pa2));box-shadow:inset 0 0 0 1.5px var(--c,var(--accent))}
+.chip.area{background:var(--pa,var(--surface));border-color:transparent;color:var(--c,var(--muted))}
+.chip.area[aria-pressed="true"]{background:var(--pa2,var(--accent-soft));box-shadow:inset 0 0 0 1.5px var(--c,var(--accent))}
+.stile[class*="area-"]{background:var(--pa)}
+
 /* 출제 분포 통계 */
 .stack{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--surface-2);min-width:120px}
 .stack.big{height:14px;margin:14px 0 12px}
