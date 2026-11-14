@@ -356,6 +356,47 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 .chip.area[aria-pressed="true"]{background:var(--pa2,var(--accent-soft));box-shadow:inset 0 0 0 1.5px var(--c,var(--accent))}
 .stile[class*="area-"]{background:var(--pa)}
 
+/* 부드러운 파스텔 톤 (채도 낮춤) */
+:root{
+  --bg:#f7f6fb; --surface-2:#f5f4fa; --hover:#efedf7; --line:#e7e4f0;
+  --accent:#6a7fd3; --accent-soft:#eceffd;
+  --edu-pb:#a9c3ee; --gmod-pb:#f1bc9c; --mod-pb:#eeb2cd; --cls-pb:#a3d6bd;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17181e; --surface-2:#22232c; --hover:#2a2b35; --line:#2f303b;
+    --accent:#93a3e6; --accent-soft:#272c45;
+    --edu-pb:#6f8cc0; --gmod-pb:#c39276; --mod-pb:#bd8aa3; --cls-pb:#78ad95;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17181e; --surface-2:#22232c; --hover:#2a2b35; --line:#2f303b;
+  --accent:#93a3e6; --accent-soft:#272c45;
+  --edu-pb:#6f8cc0; --gmod-pb:#c39276; --mod-pb:#bd8aa3; --cls-pb:#78ad95;
+}
+.area-edu{--pb:var(--edu-pb)} .area-gram{--pb:var(--gmod-pb)} .area-mod{--pb:var(--mod-pb)} .area-cls{--pb:var(--cls-pb)}
+.card::before{background:var(--pb,var(--c))}
+.answer,.gl .item,.qmemo,.witem{border-left-color:var(--pb,var(--c))}
+#view-map .stack{gap:3px;background:transparent}
+#view-map .stack span{background:var(--pb);border-left:0;border-radius:99px}
+#view-map .stile{border-top-color:var(--pb,var(--line))}
+#view-map .ystat th .dot{background:var(--pb)}
+.qb{background:var(--pa,var(--cs))}
+.qb.done{outline-color:#8fcfa9}
+
+/* 출제 분포 마스코트 */
+.mascot{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,#fdf0f5,#eef3fd 55%,#eef8f2);border:1px solid var(--line)}
+:root[data-theme="dark"] .mascot{background:linear-gradient(120deg,#2a2230,#222838 55%,#1f2b26)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mascot{background:linear-gradient(120deg,#2a2230,#222838 55%,#1f2b26)}}
+.mascot svg{width:96px;height:96px;flex:none;animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.mascot svg{animation:none}}
+.bubble{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;line-height:1.6;font-size:.95rem}
+.bubble::before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:translateY(-50%) rotate(45deg)}
+.bubble b{color:var(--c,var(--accent))}
+.bubble small{display:block;color:var(--muted);font-size:.82rem}
+@media (max-width:860px){.mascot svg{width:72px;height:72px}.mascot{gap:12px}}
+
 /* 출제 분포 통계 */
 .stack{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--surface-2);min-width:120px}
 .stack.big{height:14px;margin:14px 0 12px}
@@ -505,6 +546,29 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
 
   <!-- 출제 분포 -->
   <section id="view-map" hidden>
+    <div class="panel mascot">
+      <svg viewBox="0 0 120 120" role="img" aria-label="연필을 든 토끼 캐릭터">
+        <g stroke="#5b5866" stroke-width="2.4" stroke-linejoin="round">
+          <ellipse cx="44" cy="30" rx="10" ry="25" transform="rotate(-12 44 30)" fill="#fffdfd"/>
+          <ellipse cx="78" cy="30" rx="10" ry="25" transform="rotate(14 78 30)" fill="#fffdfd"/>
+        </g>
+        <ellipse cx="44" cy="32" rx="4.5" ry="16" transform="rotate(-12 44 32)" fill="#f9c9d8"/>
+        <ellipse cx="78" cy="32" rx="4.5" ry="16" transform="rotate(14 78 32)" fill="#f9c9d8"/>
+        <ellipse cx="60" cy="78" rx="40" ry="33" fill="#fffdfd" stroke="#5b5866" stroke-width="2.4"/>
+        <circle cx="46" cy="74" r="4.3" fill="#3f3c4a"/><circle cx="74" cy="74" r="4.3" fill="#3f3c4a"/>
+        <circle cx="47.5" cy="72.5" r="1.4" fill="#fff"/><circle cx="75.5" cy="72.5" r="1.4" fill="#fff"/>
+        <ellipse cx="37" cy="84" rx="6.5" ry="4" fill="#f7b6c9" opacity=".75"/>
+        <ellipse cx="83" cy="84" rx="6.5" ry="4" fill="#f7b6c9" opacity=".75"/>
+        <path d="M55 82q2.5 3 5 0q2.5 3 5 0" fill="none" stroke="#5b5866" stroke-width="2" stroke-linecap="round"/>
+        <g transform="rotate(-35 96 92)">
+          <rect x="90" y="70" width="10" height="34" rx="2" fill="#ffe08a" stroke="#5b5866" stroke-width="2"/>
+          <rect x="90" y="70" width="10" height="7" rx="2" fill="#f7b6c9" stroke="#5b5866" stroke-width="2"/>
+          <path d="M90 104l5 9l5-9z" fill="#f6dcc0" stroke="#5b5866" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+        <ellipse cx="88" cy="98" rx="8" ry="6.5" fill="#fffdfd" stroke="#5b5866" stroke-width="2.2"/>
+      </svg>
+      <div class="bubble" id="mascotSay"></div>
+    </div>
     <div class="panel">
       <h2>영역별 누적 문항 수</h2>
       <p class="muted" style="margin:0">지금까지 모은 기출 전체에서 영역마다 몇 문항이 나왔는지예요. (괄호 안은 배점 합계)</p>
@@ -1093,6 +1157,10 @@ details.mini .witem{border:0;border-left:2px solid var(--c);border-radius:0;padd
     });
     h+='<div class="stile all"><span class="k">전체</span><b>'+total+'<small>문항</small></b><span class="p muted">'+pts(Q)+'점</span></div></div>';
     $("#mapTotal").innerHTML=h;
+    var top=AREA_KEYS.slice().sort(function(x,y){return inA(Q,y).length-inA(Q,x).length;})[0];
+    var doneN=Q.filter(function(q){return (status[q.id]||{}).d;}).length;
+    $("#mascotSay").innerHTML='지금까지 <b class="area-'+top+'">'+AREAS[top].name+'</b>에서 제일 많이 나왔어요! ('+inA(Q,top).length+'문항, '+pct(inA(Q,top).length,total)+'%)'+
+      '<small>'+(doneN?'벌써 '+doneN+'문항이나 풀었어요. 오늘도 한 문항씩 같이 가요!':'첫 문항부터 같이 풀어 볼까요? 천천히 해도 괜찮아요.')+'</small>';
     // 연도별
     var years=uniq(Q.map(function(q){return q.year;})).sort(function(a,b){return b-a;});
     var t='<table class="map ystat"><thead><tr><th>연도</th>'+AREA_KEYS.map(function(a){return '<th class="num area-'+a+'"><span class="dot"></span>'+AREAS[a].name+'</th>';}).join("")+'<th class="num">합계</th><th class="barc">비율</th></tr></thead><tbody>';
